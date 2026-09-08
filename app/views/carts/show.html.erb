@@ -1,0 +1,30 @@
+<h1>Your Cart</h1>
+
+<% if @cart.cart_items.empty? %>
+  <p>Your cart is empty. <%= link_to "Browse products", products_path %>.</p>
+<% else %>
+  <table class="cart-table">
+    <thead>
+      <tr><th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @cart.cart_items.includes(:product).each do |item| %>
+        <tr>
+          <td><%= item.product.name %></td>
+          <td>$<%= "%.2f" % (item.product.price_cents / 100.0) %></td>
+          <td>
+            <%= form_with url: cart_item_path(item), method: :patch, class: "quantity-form" do %>
+              <%= number_field_tag :quantity, item.quantity, min: 1, class: "quantity-input" %>
+              <%= submit_tag "Update", class: "btn btn--secondary btn--small" %>
+            <% end %>
+          </td>
+          <td>$<%= "%.2f" % (item.product.price_cents * item.quantity / 100.0) %></td>
+          <td><%= button_to "Remove", cart_item_path(item), method: :delete, class: "btn btn--danger btn--small" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <p class="cart-total">Total: $<%= "%.2f" % (@cart.total_cents / 100.0) %></p>
+  <%= link_to "Checkout", new_checkout_path, class: "btn btn--accent btn--large" %>
+<% end %>

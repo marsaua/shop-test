@@ -57,3 +57,25 @@ select {
 .status-badge--pending { background: #fff3cd; color: #8a6d00; }
 .status-badge--paid { background: #e6f4ea; color: #1e7b34; }
 .status-badge--failed { background: #fdecea; color: #b3261e; }
+
+.cart-table, .orders-table, .order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.cart-table th, .cart-table td,
+.orders-table th, .orders-table td,
+.order-items-table th, .order-items-table td {
+  padding: 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.cart-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.quantity-input { width: 4rem; display: inline-block; }
