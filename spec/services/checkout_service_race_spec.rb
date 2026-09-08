@@ -26,6 +26,8 @@ RSpec.describe CheckoutService, "double-checkout race", :race_condition, type: :
     outcomes = Array.new(2) { results.pop }
 
     expect(outcomes.count(&:success?)).to eq(1)
+    losing_result = outcomes.reject(&:success?).first
+    expect(losing_result.error).to eq("empty_cart")
     expect(Order.where(user: user, status: :paid).count).to eq(1)
     expect(product.reload.stock_quantity).to eq(4)
     expect(card.reload.balance_cents).to eq(99_000)
