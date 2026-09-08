@@ -1,6 +1,4 @@
 class Product < ApplicationRecord
-  has_many :cart_items, dependent: :destroy
-  has_many :order_items, dependent: :restrict_with_error
   has_one_attached :image
 
   validates :name, presence: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_082405) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_08_082955) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,7 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_082405) do
     t.datetime "created_at", null: false
     t.string "filename", null: false
     t.string "key", null: false
-    t.text "metadata"
+    t.text "metadata", default: "{}"
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
