@@ -3176,16 +3176,19 @@ Confirm every controller that calls `authorize`/`policy_scope` at all (`Products
 
 - [ ] **Step 2: N+1 query audit**
 
-Run the full suite with query logging on to eyeball for repeated queries in a loop:
+Run the full suite with query logging on to eyeball for repeated queries in a loop. Wrap it in a transaction that always rolls back — this runs against the shared `test` database outside of RSpec's per-example rollback, so without an explicit rollback it would permanently leave an "audit@example.com" user and three "Audit N" products in the test database for every later spec run to trip over:
 ```bash
 RAILS_ENV=test bin/rails runner "
 ActiveRecord::Base.logger = Logger.new(STDOUT)
-user = User.create!(email: 'audit@example.com', password: 'password123')
-3.times { |i| p = Product.create!(name: \"Audit \#{i}\", price_cents: 100, stock_quantity: 1); user.cart.cart_items.create!(product: p, quantity: 1) }
-puts '--- cart total_cents ---'
-user.cart.total_cents
-puts '--- cart_items view render pattern (product access) ---'
-user.cart.cart_items.includes(:product).each { |ci| ci.product.name }
+ActiveRecord::Base.transaction do
+  user = User.create!(email: 'audit@example.com', password: 'password123')
+  3.times { |i| p = Product.create!(name: \"Audit \#{i}\", price_cents: 100, stock_quantity: 1); user.cart.cart_items.create!(product: p, quantity: 1) }
+  puts '--- cart total_cents ---'
+  user.cart.total_cents
+  puts '--- cart_items view render pattern (product access) ---'
+  user.cart.cart_items.includes(:product).each { |ci| ci.product.name }
+  raise ActiveRecord::Rollback
+end
 "
 ```
 
