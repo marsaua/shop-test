@@ -10,12 +10,13 @@ RSpec.describe "Orders", type: :request do
     user = create(:user)
     other = create(:user)
     mine = create(:order, user: user)
-    create(:order, user: other)
+    theirs = create(:order, user: other)
     sign_in user
 
     get orders_path
 
     expect(response.body).to include("##{mine.id}")
+    expect(response.body).not_to include("##{theirs.id}")
   end
 
   it "lets an admin see every order in the index" do
