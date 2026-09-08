@@ -1,0 +1,22 @@
+<h1><%= current_user.admin? ? "All Orders" : "My Orders" %></h1>
+
+<% if @orders.empty? %>
+  <p>No orders yet.</p>
+<% else %>
+  <table class="orders-table">
+    <thead>
+      <tr><th>Order</th><th>Status</th><th>Total</th><th>Placed</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td>#<%= order.id %></td>
+          <td><span class="status-badge status-badge--<%= order.status %>"><%= order.status %></span></td>
+          <td>$<%= "%.2f" % (order.total_cents / 100.0) %></td>
+          <td><%= order.created_at.strftime("%b %-d, %Y") %></td>
+          <td><%= link_to "View", order_path(order) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

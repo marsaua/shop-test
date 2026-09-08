@@ -1,0 +1,29 @@
+<h1>Order #<%= @order.id %></h1>
+<p><span class="status-badge status-badge--<%= @order.status %>"><%= @order.status %></span></p>
+
+<% if @order.failed? %>
+  <p class="flash flash--alert">
+    Payment failed:
+    <%= @order.failure_reason == "insufficient_funds" ? "insufficient funds on the card." : "invalid card number." %>
+  </p>
+<% end %>
+
+<% if @order.paid? %>
+  <p>Paid with card ending in <%= @order.card_last4 %>.</p>
+<% end %>
+
+<table class="order-items-table">
+  <thead><tr><th>Product</th><th>Unit price</th><th>Quantity</th><th>Subtotal</th></tr></thead>
+  <tbody>
+    <% @order.order_items.each do |item| %>
+      <tr>
+        <td><%= item.product_name %></td>
+        <td>$<%= "%.2f" % (item.unit_price_cents / 100.0) %></td>
+        <td><%= item.quantity %></td>
+        <td>$<%= "%.2f" % (item.unit_price_cents * item.quantity / 100.0) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p class="cart-total">Total: $<%= "%.2f" % (@order.total_cents / 100.0) %></p>
