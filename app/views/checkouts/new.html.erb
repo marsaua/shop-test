@@ -1,0 +1,18 @@
+<h1>Checkout</h1>
+
+<p>This is a <strong>simulated</strong> payment. Use one of the seeded test card numbers below.</p>
+<ul class="test-card-list">
+  <% PaymentCard.order(:card_number).each do |card| %>
+    <li><%= card.card_number %> &mdash; balance $<%= "%.2f" % (card.balance_cents / 100.0) %></li>
+  <% end %>
+</ul>
+
+<p>Your cart total: $<%= "%.2f" % (current_user.cart.total_cents / 100.0) %></p>
+
+<%= form_with url: checkout_path, method: :post, class: "checkout-form" do %>
+  <div class="field">
+    <%= label_tag :card_number, "Card number" %>
+    <%= text_field_tag :card_number, nil, placeholder: "4242 4242 4242 4242" %>
+  </div>
+  <%= submit_tag "Pay", class: "btn btn--accent btn--large" %>
+<% end %>
