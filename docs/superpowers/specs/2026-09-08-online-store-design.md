@@ -272,6 +272,50 @@ double stock deduction, no double card charge.
   the seeded test card numbers; plus the race-condition-spec run
   instructions noted in the testing strategy above.
 
+## Visual design
+
+A "Book store template" Figma community file
+(https://www.figma.com/design/JjkDUl3BDrISV5DfhDTiEF/Book-store-template--Community-)
+was provided as a **style reference, not a pixel-exact target**. Figma
+OAuth wasn't completed, so the file was reviewed from a downloaded
+static export (flat homepage + products-listing screenshots) rather
+than live design-token/component data — treat measurements as
+approximate, not authoritative.
+
+What we're drawing from it:
+- **Palette**: navy (`#1B2555`-ish) for the header bar and headings,
+  coral-orange (`#E85C41`-ish) for CTAs/prices/footer background, a
+  soft pink→mint gradient for hero/breadcrumb bands, white cards.
+- **Typography**: a bold geometric sans for headings (Poppins), a
+  clean sans for body text (Inter) — both via Google Fonts.
+- **Layout patterns**: utility bar + header (logo, search, account,
+  cart, wishlist) and footer (3-column, orange background) reused on
+  every page; a Products index with a left filter sidebar, sort
+  dropdown, grid/list toggle, and pagination; product cards with a
+  hover "Add to Cart" affordance, title, and price.
+
+Scope adjustments to fit our actual data model:
+- The mockup's filter sidebar has Price/Product type/Availability/
+  Brand/Color/Material. Our `Product` model only has `name` /
+  `description` / `price_cents` / `stock_quantity`, so only **Price
+  range** and **In stock** filters are implemented — Brand/Color/
+  Material don't exist in our schema and won't be added as
+  non-functional UI.
+- The mockup is a marketing template full of sections with no
+  backend behind them (blog, newsletter signup, ebook CTA, countdown
+  promo, wishlist). These are skipped entirely — we're not building
+  unused decoration.
+- Cart, checkout, and order-detail pages have no equivalent screen in
+  the reference file; they're styled to match the same palette,
+  typography, and component patterns (header/footer/buttons/cards)
+  rather than left unstyled or invented from an unrelated aesthetic.
+
+Styling approach: plain CSS with custom properties for the palette,
+under `app/assets/stylesheets` — Propshaft-compatible with zero new
+build tooling. No CSS framework (e.g. Tailwind) is introduced, since
+the project doesn't already have one and it would be a heavier
+dependency than this scope warrants.
+
 ## Out of scope / explicitly deferred
 
 - Real payment gateway integration of any kind.
