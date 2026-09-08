@@ -173,16 +173,35 @@ wraps the whole operation in **one DB transaction**:
    `Order` row is created.
 4. Create the `Order` (`pending`) + `order_items`, snapshotting
    `product_name` / `unit_price_cents` / `quantity` from the cart.
-5. Look up `PaymentCard` by the entered card number:
-   - **Not found** → `order.update!(status: :failed, failure_reason: "invalid_card")`,
+5. Sanitize the submitted card number: strip whitespace and any
+   non-digit separators (spaces, dashes). If the sanitized value is
+   empty or contains any non-digit characters, treat it the same as
+   "not found" below — fail with `invalid_card` rather than raising or
+   querying the database with a malformed value.
+6. Look up `PaymentCard` by the sanitized card number:
+   - **Not found (including malformed input from step 5)** → `order.update!(status: :failed, failure_reason: "invalid_card")`,
      commit. Cart is left intact so the user can retry with a
      different card.
    - **Found, insufficient balance** → `order.update!(status: :failed, failure_reason: "insufficient_funds")`,
      commit. Cart left intact.
    - **Found, sufficient balance** → deduct the card's balance,
      decrement each product's `stock_quantity`,
-     `order.update!(status: :paid, card_last4: card_number.last(4))`,
+     `order.update!(status: :paid, card_last4: sanitized_card_number.last(4))`,
      clear the cart's items, commit.
+
+### Stock is checked at checkout, not at add-to-cart
+
+This is an intentional design decision, not an oversight: adding a
+product to the cart (`CartItemsController#create`/`#update`) never
+checks `stock_quantity`. Checkout (step 3 above) is the single source
+of truth for stock availability. A user can add more of a product to
+their cart than is currently in stock, and will only discover a
+shortfall at checkout time (the existing out-of-stock failure path).
+This should be reiterated as a short code comment on `CartItem` and/or
+`CartItemsController` so a future contributor doesn't "fix" it by
+adding a redundant stock check on add-to-cart. No new spec is needed
+for this beyond the existing out-of-stock checkout request spec, which
+already covers it.
 
 ### Double-checkout race
 
@@ -200,7 +219,12 @@ double stock deduction, no double card charge.
 - **Request specs** per controller: auth required where needed, Pundit
   403s for non-admins on product management, cart add/update/remove,
   checkout success / insufficient funds / invalid card / empty cart /
-  out-of-stock.
+  out-of-stock / malformed card number (letters, empty string, extra
+  whitespace — confirms it fails gracefully as `invalid_card` rather
+  than raising a 500).
+- Product image request specs: admin can attach an image on
+  create/update, and omitting the image (it's optional) is also a
+  valid create/update.
 - **Policy specs**: one per Pundit policy, covering guest/user/admin
   and owner-vs-not-owner combinations.
 - **Race-condition spec**: two threads, each on its own DB connection,
@@ -208,8 +232,13 @@ double stock deduction, no double card charge.
   Rails' default transactional-test wrapper prevents real concurrency
   (both threads would share one wrapped transaction), so this spec
   needs `use_transactional_tests = false` (or DatabaseCleaner
-  truncation) and will be tagged so it's isolated from the rest of the
-  suite.
+  truncation), with an explicit teardown step that truncates the
+  affected tables afterward so it doesn't leak state into the
+  transactional suite. Tagged `:race_condition` and excluded from the
+  default run; documented in the README as runnable in isolation via
+  `bundle exec rspec --tag race_condition`, since it may be
+  slower/flakier than the rest of the suite under CI resource
+  constraints.
 
 ## Setup changes from the current scaffold
 
@@ -218,13 +247,30 @@ double stock deduction, no double card charge.
 - Add gems: `devise`, `pundit`, `rspec-rails`, `factory_bot_rails`,
   `shoulda-matchers`, `faker` (test/seed data only).
 - Remove the default Minitest `test/` directory in favor of `spec/`.
+- In `config/database.yml`, increase `pool` for the `test` environment
+  to at least 5 (default is `ENV.fetch("RAILS_MAX_THREADS") { 5 }`,
+  but confirm/pin it explicitly) so the two concurrent threads in the
+  race-condition spec don't block waiting for a connection from
+  ActiveRecord's connection pool.
 - `db/seeds.rb`: a handful of `PaymentCard`s with clearly fake numbers
   and a mix of balances (including a zero/low-balance one to exercise
   the insufficient-funds path), a few sample `Product`s, one seeded
   admin `User`.
+- Active Storage service per environment, set explicitly rather than
+  left on the generator default:
+  - `development` and `test`: `:local` disk service in
+    `config/storage.yml`, explicitly referenced in
+    `config/environments/development.rb` and `test.rb`
+    (`config.active_storage.service = :local`).
+  - `production`: also `:local` disk for this project's scope (no
+    S3/cloud bucket setup required) — with a comment in
+    `config/storage.yml` noting a real deployment would swap this for
+    a cloud service, since local disk storage doesn't persist across
+    container redeploys or multiple app instances.
 - README: a prominent section stating this payment system is a
   simulation only, not a real payment integration, with pointers to
-  the seeded test card numbers.
+  the seeded test card numbers; plus the race-condition-spec run
+  instructions noted in the testing strategy above.
 
 ## Out of scope / explicitly deferred
 
