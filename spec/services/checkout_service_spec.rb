@@ -66,6 +66,7 @@ RSpec.describe CheckoutService do
       expect(result.error).to eq("invalid_card")
       expect(result.order).to be_failed
       expect(result.order.failure_reason).to eq("invalid_card")
+      expect(user.cart.cart_items.count).to eq(1)
     end
   end
 
