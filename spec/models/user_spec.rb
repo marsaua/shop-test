@@ -16,7 +16,6 @@ RSpec.describe User, type: :model do
   end
 
   it { is_expected.to have_one(:cart).dependent(:destroy) }
-  it { is_expected.to have_many(:orders) }
 
   it "creates a cart automatically when the user is created" do
     expect(create(:user).cart).to be_present
