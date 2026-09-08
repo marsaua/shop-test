@@ -14,4 +14,11 @@ RSpec.describe User, type: :model do
   it "is an admin with the :admin trait" do
     expect(create(:user, :admin)).to be_admin
   end
+
+  it { is_expected.to have_one(:cart).dependent(:destroy) }
+  it { is_expected.to have_many(:orders) }
+
+  it "creates a cart automatically when the user is created" do
+    expect(create(:user).cart).to be_present
+  end
 end
