@@ -1,0 +1,30 @@
+<div class="product-detail">
+  <% if @product.image.attached? %>
+    <%= image_tag @product.image, class: "product-detail__image" %>
+  <% end %>
+
+  <div class="product-detail__info">
+    <h1><%= @product.name %></h1>
+    <p class="product-detail__price">$<%= "%.2f" % (@product.price_cents / 100.0) %></p>
+    <p><%= @product.description %></p>
+    <p><%= @product.stock_quantity > 0 ? "#{@product.stock_quantity} in stock" : "Out of stock" %></p>
+
+    <% if user_signed_in? %>
+      <%= form_with url: cart_items_path, method: :post, class: "add-to-cart-form" do %>
+        <%= hidden_field_tag :product_id, @product.id %>
+        <%= number_field_tag :quantity, 1, min: 1, class: "quantity-input" %>
+        <%= submit_tag "Add to Cart", class: "btn btn--accent" %>
+      <% end %>
+    <% else %>
+      <%= link_to "Sign in to purchase", new_user_session_path, class: "btn btn--primary" %>
+    <% end %>
+
+    <% if user_signed_in? && current_user.admin? %>
+      <div class="admin-actions">
+        <%= link_to "Edit", edit_product_path(@product), class: "btn btn--secondary" %>
+        <%= button_to "Delete", product_path(@product), method: :delete, class: "btn btn--danger",
+              form: { data: { turbo_confirm: "Delete this product?" } } %>
+      </div>
+    <% end %>
+  </div>
+</div>

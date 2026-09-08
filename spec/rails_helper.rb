@@ -47,6 +47,7 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
   config.include FactoryBot::Syntax::Methods
+  config.include Devise::Test::IntegrationHelpers, type: :request
   config.filter_run_excluding :race_condition
 
   # You can uncomment this line to turn off ActiveRecord support entirely.

@@ -1,0 +1,37 @@
+<%= form_with model: product, class: "product-form" do |f| %>
+  <% if product.errors.any? %>
+    <div class="form-errors">
+      <ul>
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description %>
+  </div>
+  <div class="field">
+    <%= f.label :price_cents, "Price (cents)" %>
+    <%= f.number_field :price_cents, min: 1, step: 1 %>
+  </div>
+  <div class="field">
+    <%= f.label :stock_quantity %>
+    <%= f.number_field :stock_quantity, min: 0, step: 1 %>
+  </div>
+  <div class="field">
+    <%= f.label :image %>
+    <%= f.file_field :image, accept: "image/*" %>
+    <% if product.image.attached? %>
+      <%= image_tag product.image, class: "product-form__current-image" %>
+    <% end %>
+  </div>
+
+  <%= f.submit class: "btn btn--primary" %>
+<% end %>
