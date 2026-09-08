@@ -57,6 +57,28 @@ RSpec.describe "Products", type: :request do
       expect { post products_path, params: params }.to change(Product, :count).by(1)
       expect(response).to redirect_to(Product.last)
     end
+
+    it "lets an admin attach an image on create" do
+      sign_in create(:user, :admin)
+
+      post products_path, params: {
+        product: {
+          name: "New Book", description: "desc", price_cents: 1200, stock_quantity: 5,
+          image: fixture_file_upload("test_image.png", "image/png")
+        }
+      }
+
+      expect(Product.last.image).to be_attached
+    end
+
+    it "creates the product fine when no image is given" do
+      sign_in create(:user, :admin)
+
+      post products_path, params: { product: { name: "New Book", description: "desc", price_cents: 1200, stock_quantity: 5 } }
+
+      expect(Product.last.image).not_to be_attached
+      expect(response).to redirect_to(Product.last)
+    end
   end
 
   describe "PATCH /products/:id" do
@@ -95,6 +117,17 @@ RSpec.describe "Products", type: :request do
       sign_in create(:user, :admin)
 
       expect { delete product_path(product) }.to change(Product, :count).by(-1)
+    end
+
+    it "is blocked by Rails when the product has already been purchased" do
+      product = create(:product)
+      order = create(:order)
+      create(:order_item, order: order, product: product)
+      sign_in create(:user, :admin)
+
+      expect { delete product_path(product) }.not_to change(Product, :count)
+      expect(response).to redirect_to(products_path)
+      expect(flash[:alert]).to be_present
     end
   end
 end

@@ -51,7 +51,7 @@ class CheckoutService
         next Result.new(success?: false, order: order, error: "invalid_card")
       end
 
-      card = PaymentCard.find_by(card_number: sanitized_card_number)
+      card = PaymentCard.lock.find_by(card_number: sanitized_card_number)
 
       if card.nil?
         order.update!(status: :failed, failure_reason: "invalid_card")

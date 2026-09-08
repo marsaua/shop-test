@@ -32,4 +32,31 @@ RSpec.describe CheckoutService, "double-checkout race", :race_condition, type: :
     expect(product.reload.stock_quantity).to eq(4)
     expect(card.reload.balance_cents).to eq(99_000)
   end
+
+  it "does not double-spend a shared card across two different users checking out concurrently" do
+    card = create(:payment_card, balance_cents: 15_000)
+    user_a = create(:user)
+    user_b = create(:user)
+    product_a = create(:product, price_cents: 10_000, stock_quantity: 5)
+    product_b = create(:product, price_cents: 10_000, stock_quantity: 5)
+    user_a.cart.cart_items.create!(product: product_a, quantity: 1)
+    user_b.cart.cart_items.create!(product: product_b, quantity: 1)
+
+    results = Queue.new
+    threads = [ user_a, user_b ].map do |user|
+      Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          results << CheckoutService.new(user: user, card_number: card.card_number).call
+        end
+      end
+    end
+    threads.each(&:join)
+
+    outcomes = Array.new(2) { results.pop }
+
+    expect(outcomes.count(&:success?)).to eq(1)
+    losing_result = outcomes.reject(&:success?).first
+    expect(losing_result.error).to eq("insufficient_funds")
+    expect(card.reload.balance_cents).to eq(5_000)
+  end
 end
