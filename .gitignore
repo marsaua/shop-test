@@ -33,3 +33,6 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore Claude Code worktrees (linked working trees, not part of history).
+/.claude/worktrees/
+
