@@ -1,0 +1,29 @@
+<header class="site-header">
+  <div class="utility-bar">
+    <span>This is a simulated store — no real payments are processed.</span>
+    <nav class="utility-bar__auth">
+      <% if user_signed_in? %>
+        <span><%= current_user.email %> (<%= current_user.role %>)</span>
+        <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "link-button" %>
+      <% else %>
+        <%= link_to "Sign in", new_user_session_path %>
+        <%= link_to "Sign up", new_user_registration_path %>
+      <% end %>
+    </nav>
+  </div>
+  <div class="main-header">
+    <%= link_to "Shop Trololo", root_path, class: "logo" %>
+    <nav class="main-nav">
+      <%= link_to "Products", products_path %>
+      <% if user_signed_in? && current_user.admin? %>
+        <%= link_to "New Product", new_product_path %>
+      <% end %>
+    </nav>
+    <div class="header-actions">
+      <% if user_signed_in? %>
+        <%= link_to "Cart (#{current_user.cart.cart_items.sum(:quantity)})", cart_path, class: "cart-link" %>
+        <%= link_to "My Orders", orders_path %>
+      <% end %>
+    </div>
+  </div>
+</header>

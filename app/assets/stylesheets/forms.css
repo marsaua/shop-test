@@ -1,0 +1,81 @@
+.btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--font-body);
+}
+
+.btn--primary { background: var(--color-navy); color: white; }
+.btn--accent { background: var(--color-coral); color: white; }
+.btn--secondary { background: white; color: var(--color-navy); border: 1px solid var(--color-navy); }
+.btn--danger { background: white; color: #b3261e; border: 1px solid #b3261e; }
+.btn--small { padding: 0.3rem 0.7rem; font-size: 0.85rem; }
+.btn--large { padding: 0.9rem 1.6rem; font-size: 1.05rem; }
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: var(--font-body);
+}
+
+.form-errors {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.flash { padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+.flash--notice { background: #e6f4ea; color: #1e7b34; }
+.flash--alert { background: #fdecea; color: #b3261e; }
+
+.status-badge { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.status-badge--pending { background: #fff3cd; color: #8a6d00; }
+.status-badge--paid { background: #e6f4ea; color: #1e7b34; }
+.status-badge--failed { background: #fdecea; color: #b3261e; }
+
+.cart-table, .orders-table, .order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.cart-table th, .cart-table td,
+.orders-table th, .orders-table td,
+.order-items-table th, .order-items-table td {
+  padding: 0.6rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.cart-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.quantity-input { width: 4rem; display: inline-block; }
