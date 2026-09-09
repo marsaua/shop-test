@@ -1,7 +1,10 @@
 require "rails_helper"
 require "database_cleaner/active_record"
+require_relative "../support/lock_contention"
 
-RSpec.describe CheckoutService, "double-checkout race", :race_condition, type: :model do
+RSpec.describe CheckoutService, "concurrency", :race_condition, type: :model do
+  include LockContention
+
   self.use_transactional_tests = false
 
   before { DatabaseCleaner.strategy = :truncation }
@@ -13,17 +16,8 @@ RSpec.describe CheckoutService, "double-checkout race", :race_condition, type: :
     user.cart.cart_items.create!(product: product, quantity: 1)
     card = create(:payment_card, balance_cents: 100_000)
 
-    results = Queue.new
-    threads = Array.new(2) do
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          results << CheckoutService.new(user: user, card_number: card.card_number).call
-        end
-      end
-    end
-    threads.each(&:join)
-
-    outcomes = Array.new(2) { results.pop }
+    jobs = Array.new(2) { -> { CheckoutService.new(user: user, card_number: card.card_number).call } }
+    outcomes = run_under_forced_contention(user.cart, jobs)
 
     expect(outcomes.count(&:success?)).to eq(1)
     losing_result = outcomes.reject(&:success?).first
@@ -42,17 +36,8 @@ RSpec.describe CheckoutService, "double-checkout race", :race_condition, type: :
     user_a.cart.cart_items.create!(product: product_a, quantity: 1)
     user_b.cart.cart_items.create!(product: product_b, quantity: 1)
 
-    results = Queue.new
-    threads = [ user_a, user_b ].map do |user|
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          results << CheckoutService.new(user: user, card_number: card.card_number).call
-        end
-      end
-    end
-    threads.each(&:join)
-
-    outcomes = Array.new(2) { results.pop }
+    jobs = [ user_a, user_b ].map { |user| -> { CheckoutService.new(user: user, card_number: card.card_number).call } }
+    outcomes = run_under_forced_contention(card, jobs)
 
     expect(outcomes.count(&:success?)).to eq(1)
     losing_result = outcomes.reject(&:success?).first

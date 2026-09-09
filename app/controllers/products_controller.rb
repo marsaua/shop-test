@@ -1,3 +1,5 @@
+require "bigdecimal"
+
 class ProductsController < ApplicationController
   before_action :authenticate_user!, only: %i[new create edit update destroy]
   before_action :set_product, only: %i[show edit update destroy]
@@ -61,9 +63,20 @@ class ProductsController < ApplicationController
     params.require(:product).permit(:name, :description, :price_cents, :stock_quantity, :image)
   end
 
+  # Strict, safe dollars->cents parsing for public query params. Only a
+  # plain non-negative decimal string (no scientific notation, no
+  # array/hash-shaped params) is accepted; anything else is treated as
+  # "no filter" rather than raising, since min_price/max_price come
+  # straight from unauthenticated query params. Uses BigDecimal so we
+  # never do money math in floats.
   def dollars_to_cents(value)
-    return nil if value.blank?
+    return nil unless value.is_a?(String)
 
-    (value.to_f * 100).round
+    sanitized = value.strip
+    return nil unless sanitized.match?(/\A\d+(\.\d+)?\z/)
+
+    (BigDecimal(sanitized) * 100).round.to_i
+  rescue ArgumentError
+    nil
   end
 end

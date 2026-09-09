@@ -27,6 +27,71 @@ RSpec.describe "Products", type: :request do
       expect(response.body).to include(pricey.name)
       expect(response.body).not_to include(cheap.name)
     end
+
+    it "filters by a decimal price value" do
+      cheap = create(:product, name: "Cheap Book", price_cents: 999)
+      pricey = create(:product, name: "Pricey Book", price_cents: 1500)
+
+      get products_path(min_price: "10.50")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(pricey.name)
+      expect(response.body).not_to include(cheap.name)
+    end
+
+    it "treats arbitrary text as no filter instead of erroring" do
+      product = create(:product)
+
+      get products_path(min_price: "not-a-number")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(product.name)
+    end
+
+    it "treats a huge exponent as no filter instead of erroring" do
+      product = create(:product)
+
+      get products_path(min_price: "1e309")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(product.name)
+    end
+
+    it "treats an array-shaped price param as no filter instead of erroring" do
+      product = create(:product)
+
+      get products_path(min_price: [ "10" ])
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(product.name)
+    end
+
+    it "treats a hash-shaped price param as no filter instead of erroring" do
+      product = create(:product)
+
+      get products_path(min_price: { sneaky: "10" })
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(product.name)
+    end
+
+    it "treats a negative price value as no filter instead of erroring" do
+      product = create(:product)
+
+      get products_path(min_price: "-10")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(product.name)
+    end
+
+    it "handles malformed min_price and max_price together without erroring" do
+      product = create(:product)
+
+      get products_path(min_price: "1e309", max_price: { sneaky: "1" })
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include(product.name)
+    end
   end
 
   describe "GET /products/:id" do
