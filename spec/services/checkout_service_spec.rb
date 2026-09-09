@@ -71,7 +71,7 @@ RSpec.describe CheckoutService do
   end
 
   describe "malformed card numbers" do
-    ["", "    ", "abcd1234abcd1234"].each do |bad_number|
+    [ "", "    ", "abcd1234abcd1234" ].each do |bad_number|
       it "fails gracefully as invalid_card for #{bad_number.inspect} instead of raising" do
         user = create(:user)
         user.cart.cart_items.create!(product: create(:product), quantity: 1)

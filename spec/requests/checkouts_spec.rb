@@ -6,7 +6,7 @@ RSpec.describe "Checkout", type: :request do
     product = create(:product, stock_quantity: product_stock, price_cents: product_price_cents)
     user.cart.cart_items.create!(product: product, quantity: quantity)
     sign_in user
-    [user, product]
+    [ user, product ]
   end
 
   it "requires sign in" do

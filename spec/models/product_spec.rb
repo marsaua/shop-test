@@ -34,14 +34,14 @@ RSpec.describe Product, type: :model do
       cheap = create(:product, price_cents: 500)
       pricey = create(:product, price_cents: 5000)
 
-      expect(Product.sorted("price_desc").to_a).to eq([pricey, cheap])
+      expect(Product.sorted("price_desc").to_a).to eq([ pricey, cheap ])
     end
 
     it "falls back to name ascending for an unknown key" do
       b = create(:product, name: "B Product")
       a = create(:product, name: "A Product")
 
-      expect(Product.sorted("nonsense").to_a).to eq([a, b])
+      expect(Product.sorted("nonsense").to_a).to eq([ a, b ])
     end
   end
 
