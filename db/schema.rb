@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_083721) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_092554) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_083721) do
     t.bigint "product_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["last_viewed_at"], name: "index_product_views_on_last_viewed_at"
     t.index ["product_id"], name: "index_product_views_on_product_id"
     t.index ["user_id", "last_viewed_at"], name: "index_product_views_on_user_id_and_last_viewed_at"
     t.index ["user_id", "product_id"], name: "index_product_views_on_user_id_and_product_id", unique: true
