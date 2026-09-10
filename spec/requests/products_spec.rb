@@ -103,6 +103,59 @@ RSpec.describe "Products", type: :request do
     end
   end
 
+  describe "GET / (most popular section)" do
+    it "shows popular products, available to guests" do
+      popular = create(:product, name: "Widely Viewed Widget")
+      create(:product_popularity_stat, product: popular, viewers_count: 4)
+
+      get products_path
+
+      expect(response.body).to include("Most popular")
+      expect(response.body).to include("Based on unique viewers in the last 7 days.")
+      expect(response.body).to include("Widely Viewed Widget")
+    end
+
+    it "shows popular products to signed-in users, with cart controls available" do
+      popular = create(:product, name: "Signed In Popular Widget")
+      create(:product_popularity_stat, product: popular, viewers_count: 4)
+      sign_in create(:user)
+
+      get products_path
+
+      expect(response.body).to include("Signed In Popular Widget")
+      expect(response.body).to include("Add to Cart")
+    end
+
+    it "reads the stored snapshot rather than aggregating viewing history on the fly" do
+      product = create(:product, name: "Snapshot Only Widget")
+      create(:product_popularity_stat, product: product, viewers_count: 3)
+      # No matching ProductView rows exist - if this recomputed popularity at
+      # request time instead of reading the snapshot, the product wouldn't
+      # qualify (zero real views) and this assertion would fail.
+
+      get products_path
+
+      expect(response.body).to include("Snapshot Only Widget")
+    end
+
+    it "hides the section entirely when there are no popular products" do
+      create(:product, name: "Ordinary Widget")
+
+      get products_path
+
+      expect(response.body).not_to include("Most popular")
+    end
+
+    it "excludes products with a zero viewer count" do
+      unpopular = create(:product, name: "Zero Views Widget")
+      create(:product_popularity_stat, product: unpopular, viewers_count: 0)
+
+      get products_path
+
+      expect(response.body).not_to include("Most popular")
+    end
+  end
+
   describe "GET /products with a search query" do
     it "finds products by name, brand, model, or SKU" do
       match = create(:product, name: "Voltrix Nova 12", brand: "Voltrix", model: "Nova 12")
@@ -272,6 +325,83 @@ RSpec.describe "Products", type: :request do
       expect(body["out_of_stock"]).to eq(false)
       expect(body["warranty_months"]).to eq(24)
       expect(body["specifications"]).to eq("ram_gb" => 8)
+    end
+  end
+
+  describe "GET /products/popular" do
+    it "returns up to 12 products ordered by viewer count descending" do
+      low = create(:product, name: "Low Popularity Widget")
+      high = create(:product, name: "High Popularity Widget")
+      create(:product_popularity_stat, product: low, viewers_count: 1)
+      create(:product_popularity_stat, product: high, viewers_count: 9)
+
+      get popular_products_path, as: :json
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body.map { |p| p["id"] }).to eq([ high.id, low.id ])
+    end
+
+    it "breaks ties deterministically by product id" do
+      tie_a = create(:product)
+      tie_b = create(:product)
+      create(:product_popularity_stat, product: tie_b, viewers_count: 5)
+      create(:product_popularity_stat, product: tie_a, viewers_count: 5)
+      expected_order = [ tie_a.id, tie_b.id ].sort
+
+      get popular_products_path, as: :json
+
+      expect(JSON.parse(response.body).map { |p| p["id"] }).to eq(expected_order)
+    end
+
+    it "excludes products with a zero viewer count" do
+      zero = create(:product)
+      create(:product_popularity_stat, product: zero, viewers_count: 0)
+
+      get popular_products_path, as: :json
+
+      expect(JSON.parse(response.body)).to eq([])
+    end
+
+    it "reads the stored snapshot without aggregating viewing history" do
+      product = create(:product)
+      create(:product_popularity_stat, product: product, viewers_count: 7)
+
+      expect(ProductView).not_to receive(:group)
+
+      get popular_products_path, as: :json
+
+      expect(JSON.parse(response.body).map { |p| p["id"] }).to eq([ product.id ])
+    end
+
+    it "returns an empty result when no statistics have been calculated yet" do
+      create(:product)
+
+      get popular_products_path, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq([])
+    end
+
+    it "returns current product data through the same serializer as by_ids" do
+      product = create(:product, name: "Popular Nova", brand: "Voltrix", price_cents: 5000)
+      create(:product_popularity_stat, product: product, viewers_count: 2)
+
+      get popular_products_path, as: :json
+
+      body = JSON.parse(response.body).first
+      expect(body["name"]).to eq("Popular Nova")
+      expect(body["brand"]).to eq("Voltrix")
+      expect(body["price_cents"]).to eq(5000)
+    end
+
+    it "is available to guests" do
+      product = create(:product)
+      create(:product_popularity_stat, product: product, viewers_count: 1)
+
+      get popular_products_path, as: :json
+
+      expect(response).to have_http_status(:ok)
     end
   end
 

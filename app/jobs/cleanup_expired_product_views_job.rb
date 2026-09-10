@@ -12,8 +12,13 @@ class CleanupExpiredProductViewsJob < ApplicationJob
   # A single cutoff computed once up front, not re-evaluated per batch -
   # otherwise a job that ran across a cutoff boundary could delete a record
   # that was within the window when the run started.
+  #
+  # Shares ProductView::WINDOW with RefreshProductPopularityStatsJob's
+  # aggregation cutoff, rather than a separately-hardcoded duration, so the
+  # two can never drift out of sync - popularity stats always stay
+  # computable for exactly as long as the underlying history survives.
   def perform
-    cutoff = 1.week.ago
+    cutoff = ProductView::WINDOW.ago
     started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     deleted_count = 0
 

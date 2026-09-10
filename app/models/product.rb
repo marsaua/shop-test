@@ -4,6 +4,7 @@ class Product < ApplicationRecord
   has_many :order_items, dependent: :restrict_with_error
   has_many :favorites, dependent: :destroy
   has_many :product_views, dependent: :destroy
+  has_one :product_popularity_stat, dependent: :destroy
 
   # `other` exists only to backfill pre-existing, non-electronics demo
   # products introduced before this catalog was themed around electronics

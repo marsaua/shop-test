@@ -17,3 +17,10 @@ production:
     class: CleanupExpiredProductViewsJob
     queue: background
     schedule: every day at 3am
+  # Fires at minute 0 of every even hour (00:00, 02:00, ... 22:00), in the
+  # app's configured Time.zone - UTC here, since config.time_zone is unset
+  # in config/application.rb.
+  refresh_product_popularity_stats:
+    class: RefreshProductPopularityStatsJob
+    queue: background
+    schedule: every 2 hours

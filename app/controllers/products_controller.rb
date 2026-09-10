@@ -18,6 +18,7 @@ class ProductsController < ApplicationController
     @products = @products.sorted(params[:sort]) if params[:sort].present? || @query.blank?
     @products = @products.page(params[:page]).per(12)
     @favorited_product_ids = favorited_product_ids
+    @popular_products = popular_products
   end
 
   def show
@@ -30,26 +31,16 @@ class ProductsController < ApplicationController
     ids = Array(params[:ids]).filter_map { |id| Integer(id, exception: false) }
     products = Product.where(id: ids)
 
-    render json: products.map { |product|
-      {
-        id: product.id,
-        name: product.name,
-        price_cents: product.price_cents,
-        in_stock: product.stock_quantity > 0,
-        image_url: product.image.attached? ? url_for(product.image) : nil,
-        brand: product.brand,
-        model: product.model,
-        category: product.category,
-        category_label: product.category_label,
-        previous_price_cents: product.previous_price_cents,
-        discounted: product.discounted?,
-        stock_quantity: product.stock_quantity,
-        low_stock: product.low_stock?,
-        out_of_stock: product.out_of_stock?,
-        warranty_months: product.warranty_months,
-        specifications: product.specifications
-      }
-    }
+    render json: products.map { |product| serialize_product(product) }
+  end
+
+  # Reads the snapshot RefreshProductPopularityStatsJob last published -
+  # never aggregates ProductView here (see ProductPopularityStat.top).
+  def popular
+    authorize Product, :index?
+    products = ProductPopularityStat.top(user: current_user).map(&:product)
+
+    render json: products.map { |product| serialize_product(product) }
   end
 
   def new
@@ -95,6 +86,39 @@ class ProductsController < ApplicationController
 
   def favorited_product_ids
     user_signed_in? ? current_user.favorites.pluck(:product_id).to_set : Set.new
+  end
+
+  # A DB hiccup while reading the popularity snapshot is the only failure
+  # mode worth isolating here - everything else (the 12-item limit, the
+  # positive-count filter, visibility) is enforced by the query itself -
+  # so it's swallowed into an empty section rather than failing the whole
+  # product listing.
+  def popular_products
+    ProductPopularityStat.top(user: current_user).map(&:product)
+  rescue ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished => e
+    Rails.logger.error("[ProductsController] failed to load popular products: #{e.class}")
+    []
+  end
+
+  def serialize_product(product)
+    {
+      id: product.id,
+      name: product.name,
+      price_cents: product.price_cents,
+      in_stock: product.stock_quantity > 0,
+      image_url: product.image.attached? ? url_for(product.image) : nil,
+      brand: product.brand,
+      model: product.model,
+      category: product.category,
+      category_label: product.category_label,
+      previous_price_cents: product.previous_price_cents,
+      discounted: product.discounted?,
+      stock_quantity: product.stock_quantity,
+      low_stock: product.low_stock?,
+      out_of_stock: product.out_of_stock?,
+      warranty_months: product.warranty_months,
+      specifications: product.specifications
+    }
   end
 
   def product_params

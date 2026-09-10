@@ -1,5 +1,23 @@
 <h1>Products</h1>
 
+<% if @popular_products.present? %>
+  <section class="popular-products" data-controller="popular-products-slider">
+    <h2>Most popular</h2>
+    <p class="popular-products__subtitle">Based on unique viewers in the last 7 days.</p>
+    <div class="popular-products__slider">
+      <button type="button" class="popular-products__nav" data-action="click->popular-products-slider#prev"
+              aria-label="Scroll to previous popular products">&lsaquo;</button>
+      <div class="popular-products__track" data-popular-products-slider-target="track">
+        <% @popular_products.each do |product| %>
+          <%= render "products/product_card", product: product, favorited: @favorited_product_ids.include?(product.id) %>
+        <% end %>
+      </div>
+      <button type="button" class="popular-products__nav" data-action="click->popular-products-slider#next"
+              aria-label="Scroll to next popular products">&rsaquo;</button>
+    </div>
+  </section>
+<% end %>
+
 <div class="products-layout" data-controller="product-search">
   <aside class="filters">
     <%= form_with url: products_path, method: :get, class: "filters__form",

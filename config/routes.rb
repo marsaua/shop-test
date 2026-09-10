@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
     collection do
       get :by_ids
+      get :popular
     end
   end
   resource :cart, only: [ :show ]

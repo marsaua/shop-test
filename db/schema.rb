@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_092554) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_10_094709) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -102,6 +102,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_092554) do
     t.index ["card_number"], name: "index_payment_cards_on_card_number", unique: true
   end
 
+  create_table "product_popularity_stats", force: :cascade do |t|
+    t.datetime "calculated_at", null: false
+    t.datetime "created_at", null: false
+    t.bigint "product_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "viewers_count", default: 0, null: false
+    t.index ["product_id"], name: "index_product_popularity_stats_on_product_id", unique: true
+    t.index ["viewers_count", "product_id"], name: "index_product_popularity_stats_on_viewers_count_and_product_id"
+  end
+
   create_table "product_views", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "last_viewed_at", null: false
@@ -163,6 +173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_092554) do
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"
+  add_foreign_key "product_popularity_stats", "products"
   add_foreign_key "product_views", "products"
   add_foreign_key "product_views", "users"
 end
