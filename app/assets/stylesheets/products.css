@@ -1,20 +1,24 @@
+/* Full-bleed: breaks out of main.page's centered 1200px/1.5rem gutter so
+   the slider spans the full viewport width, edge to edge, regardless of
+   how wide the page container itself is. */
 .popular-products {
-  max-width: 640px;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   margin-bottom: 2rem;
-  padding: 1rem 1.25rem 1.25rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  padding: 1.5rem 1.5rem 1.75rem;
   background: var(--color-bg-soft);
 }
 
 .popular-products h2 { margin: 0; }
 .popular-products__subtitle { color: var(--color-text-muted); margin: 0.25rem 0 1rem; }
 
-.popular-products__slider { display: flex; align-items: center; gap: 0.5rem; }
+.popular-products__slider { display: flex; align-items: center; gap: 0.75rem; }
 
 .popular-products__track {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
@@ -22,14 +26,14 @@
 }
 
 .popular-products__track .product-card {
-  flex: 0 0 180px;
+  flex: 0 0 220px;
   scroll-snap-align: start;
   background: var(--color-bg, #fff);
 }
 
 .popular-products__track .product-card__image,
 .popular-products__track .product-card__image--placeholder {
-  height: 130px;
+  height: 180px;
 }
 
 .popular-products__nav {
