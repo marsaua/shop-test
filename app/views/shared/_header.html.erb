@@ -19,7 +19,15 @@
         <%= link_to "New Product", new_product_path %>
       <% end %>
     </nav>
-    <div class="header-actions">
+    <div class="header-actions" data-controller="favorites-counter comparison-counter"
+         data-favorites-counter-signed-in-value="<%= user_signed_in? %>"
+         data-favorites-counter-count-value="<%= user_signed_in? ? current_user.favorites.count : 0 %>">
+      <%= link_to favorites_path, class: "favorites-link" do %>
+        Favorites (<span data-favorites-counter-target="count"><%= user_signed_in? ? current_user.favorites.count : 0 %></span>)
+      <% end %>
+      <%= link_to comparison_path, class: "comparison-link" do %>
+        Compare (<span data-comparison-counter-target="count">0</span>)
+      <% end %>
       <% if user_signed_in? %>
         <%= link_to "Cart (#{current_user.cart.cart_items.sum(:quantity)})", cart_path, class: "cart-link" %>
         <%= link_to "My Orders", orders_path %>

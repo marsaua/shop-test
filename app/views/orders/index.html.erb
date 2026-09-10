@@ -12,7 +12,7 @@
         <tr>
           <td>#<%= order.id %></td>
           <td><span class="status-badge status-badge--<%= order.status %>"><%= order.status %></span></td>
-          <td>$<%= "%.2f" % (order.total_cents / 100.0) %></td>
+          <td>₴<%= "%.2f" % (order.total_cents / 100.0) %></td>
           <td><%= order.created_at.strftime("%b %-d, %Y") %></td>
           <td><%= link_to "View", order_path(order) %></td>
         </tr>

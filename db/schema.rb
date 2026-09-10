@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_091117) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_09_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,6 +60,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_091117) do
     t.index ["user_id"], name: "index_carts_on_user_id", unique: true
   end
 
+  create_table "favorites", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "product_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["product_id"], name: "index_favorites_on_product_id"
+    t.index ["user_id", "product_id"], name: "index_favorites_on_user_id_and_product_id", unique: true
+    t.index ["user_id"], name: "index_favorites_on_user_id"
+  end
+
   create_table "order_items", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "order_id", null: false
@@ -93,12 +103,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_091117) do
   end
 
   create_table "products", force: :cascade do |t|
+    t.string "brand", null: false
+    t.integer "category", null: false
+    t.string "color"
     t.datetime "created_at", null: false
     t.text "description"
+    t.string "model"
     t.string "name", null: false
+    t.integer "previous_price_cents"
     t.integer "price_cents", null: false
+    t.virtual "search_vector", type: :tsvector, as: "(((setweight(to_tsvector('english'::regconfig, (COALESCE(name, ''::character varying))::text), 'A'::\"char\") || setweight(to_tsvector('simple'::regconfig, (COALESCE(brand, ''::character varying))::text), 'A'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (COALESCE(model, ''::character varying))::text), 'A'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE(description, ''::text)), 'B'::\"char\"))", stored: true
+    t.string "sku", null: false
+    t.jsonb "specifications", default: {}, null: false
     t.integer "stock_quantity", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.integer "warranty_months"
+    t.integer "weight_grams"
+    t.index "lower((model)::text) text_pattern_ops", name: "index_products_on_lower_model_pattern"
+    t.index "lower((name)::text) text_pattern_ops", name: "index_products_on_lower_name_pattern"
+    t.index "lower((sku)::text)", name: "index_products_on_lower_sku"
+    t.index ["category"], name: "index_products_on_category"
+    t.index ["search_vector"], name: "index_products_on_search_vector", using: :gin
+    t.index ["sku"], name: "index_products_on_sku", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -119,6 +145,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_091117) do
   add_foreign_key "cart_items", "carts"
   add_foreign_key "cart_items", "products"
   add_foreign_key "carts", "users"
+  add_foreign_key "favorites", "products"
+  add_foreign_key "favorites", "users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"

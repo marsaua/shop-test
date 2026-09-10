@@ -1,8 +1,19 @@
 <h1>Products</h1>
 
-<div class="products-layout">
+<div class="products-layout" data-controller="product-search">
   <aside class="filters">
-    <%= form_with url: products_path, method: :get, class: "filters__form" do %>
+    <%= form_with url: products_path, method: :get, class: "filters__form",
+          data: { product_search_target: "form", turbo_frame: "products-results", turbo_action: "advance" } do %>
+      <div class="field search-field">
+        <label for="q" class="sr-only">Search products</label>
+        <div class="search-field__input-wrapper">
+          <%= search_field_tag :q, @query, placeholder: "Search by name, brand, model, or SKU…",
+                autocomplete: "off", autocorrect: "off", spellcheck: "false",
+                data: { product_search_target: "input", action: "input->product-search#onInput" } %>
+          <button type="button" class="search-field__clear" data-product-search-target="clear"
+                  data-action="click->product-search#clear" hidden aria-label="Clear search">&times;</button>
+        </div>
+      </div>
       <fieldset>
         <legend>Price</legend>
         <label>Min <%= number_field_tag :min_price, params[:min_price], step: "0.01", min: 0 %></label>
@@ -18,7 +29,7 @@
       <div class="field">
         <label for="sort">Sort by</label>
         <%= select_tag :sort, options_for_select(
-              [["Name (A-Z)", "name_asc"], ["Name (Z-A)", "name_desc"],
+              [["Relevance", ""], ["Name (A-Z)", "name_asc"], ["Name (Z-A)", "name_desc"],
                ["Price (low to high)", "price_asc"], ["Price (high to low)", "price_desc"]],
               params[:sort]) %>
       </div>
@@ -27,27 +38,13 @@
   </aside>
 
   <section>
-    <div class="product-grid">
-      <% @products.each do |product| %>
-        <article class="product-card">
-          <%= link_to product_path(product) do %>
-            <% if product.image.attached? %>
-              <%= image_tag product.image, class: "product-card__image" %>
-            <% else %>
-              <div class="product-card__image product-card__image--placeholder"></div>
-            <% end %>
-          <% end %>
-          <h3><%= link_to product.name, product_path(product) %></h3>
-          <p class="product-card__price">$<%= "%.2f" % (product.price_cents / 100.0) %></p>
-          <% if product.stock_quantity <= 0 %>
-            <p class="product-card__out-of-stock">Out of stock</p>
-          <% elsif user_signed_in? %>
-            <%= button_to "Add to Cart", cart_items_path(product_id: product.id), class: "btn btn--accent" %>
-          <% end %>
-        </article>
-      <% end %>
-    </div>
+    <div class="sr-only" aria-live="polite" data-product-search-target="status"></div>
+    <p class="search-error" data-product-search-target="error" hidden>
+      Couldn't reach the server. Check your connection and try again.
+    </p>
 
-    <%= paginate @products %>
+    <%= turbo_frame_tag "products-results", data: { turbo_action: "advance", product_search_target: "frame" } do %>
+      <%= render "products/results", products: @products, favorited_product_ids: @favorited_product_ids, query: @query %>
+    <% end %>
   </section>
 </div>

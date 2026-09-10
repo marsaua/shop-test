@@ -1,0 +1,14 @@
+<button type="button"
+        class="compare-toggle"
+        data-controller="comparison-toggle"
+        data-comparison-toggle-product-id-value="<%= product.id %>"
+        data-comparison-toggle-category-value="<%= product.category %>"
+        data-comparison-toggle-by-ids-url-value="<%= by_ids_products_path %>"
+        data-comparison-toggle-product-name="<%= product.name %>"
+        data-action="click->comparison-toggle#toggle"
+        aria-pressed="false"
+        aria-label="Add <%= product.name %> to comparison">
+  <span class="compare-toggle__icon" aria-hidden="true">⇄</span>
+  <span class="compare-toggle__label" data-role="add-label">Compare</span>
+  <span class="compare-toggle__label" data-role="comparing-label" hidden>Comparing</span>
+</button>

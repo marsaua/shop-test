@@ -28,10 +28,13 @@
 .field { margin-bottom: 1rem; }
 .field label { display: block; font-weight: 600; margin-bottom: 0.3rem; }
 
+.product-form__specifications { min-height: 8rem; font-family: monospace; }
+
 input[type="text"],
 input[type="number"],
 input[type="email"],
 input[type="password"],
+input[type="search"],
 textarea,
 select {
   width: 100%;
@@ -52,6 +55,15 @@ select {
 .flash { padding: 0.8rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
 .flash--notice { background: #e6f4ea; color: #1e7b34; }
 .flash--alert { background: #fdecea; color: #b3261e; }
+
+.favorites-sync-status {
+  padding: 0.6rem 1rem;
+  margin: 0;
+  background: var(--color-bg-soft);
+  color: var(--color-navy);
+  font-size: 0.9rem;
+  text-align: center;
+}
 
 .status-badge { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
 .status-badge--pending { background: #fff3cd; color: #8a6d00; }

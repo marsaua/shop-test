@@ -1,0 +1,43 @@
+<h1>Compare Products</h1>
+
+<div data-controller="comparison-page"
+     data-comparison-page-by-ids-url-value="<%= by_ids_products_path %>"
+     data-comparison-page-cart-items-url-value="<%= cart_items_path %>"
+     data-comparison-page-new-session-url-value="<%= new_user_session_path %>">
+  <div class="comparison-controls" data-comparison-page-target="controls" hidden>
+    <label class="comparison-diff-toggle">
+      <input type="checkbox" data-comparison-page-target="diffToggle"
+             data-action="change->comparison-page#toggleDifferencesOnly">
+      Show differences only
+    </label>
+    <button type="button" class="btn btn--secondary" data-action="click->comparison-page#clearAll">Clear all</button>
+  </div>
+
+  <p class="comparison-status" data-comparison-page-target="loading" role="status">Loading your comparison&hellip;</p>
+
+  <div class="flash flash--alert" data-comparison-page-target="error" role="alert" hidden>
+    <p data-comparison-page-target="errorMessage"></p>
+    <button type="button" class="btn btn--secondary" data-action="click->comparison-page#retry">Retry</button>
+  </div>
+
+  <p class="comparison-status" data-comparison-page-target="reconcileNotice" role="status" hidden></p>
+
+  <div class="comparison-empty" data-comparison-page-target="empty" hidden>
+    <p>You haven't added any products to compare yet.</p>
+    <%= link_to "Browse the catalog", products_path, class: "btn btn--primary" %>
+  </div>
+
+  <p class="comparison-status" data-comparison-page-target="singlePrompt" hidden>
+    Add another product from the same category to start comparing.
+  </p>
+
+  <div class="comparison-table-wrapper" data-comparison-page-target="tableWrapper" hidden>
+    <table class="comparison-table">
+      <caption class="sr-only">Product comparison</caption>
+      <thead>
+        <tr data-comparison-page-target="headerRow"></tr>
+      </thead>
+      <tbody data-comparison-page-target="body"></tbody>
+    </table>
+  </div>
+</div>

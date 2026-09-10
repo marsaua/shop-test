@@ -1,0 +1,32 @@
+<% favorited = local_assigns.fetch(:favorited, false) %>
+<article class="product-card" data-product-id="<%= product.id %>">
+  <div class="product-card__media">
+    <%= link_to product_path(product) do %>
+      <% if product.image.attached? %>
+        <%= image_tag product.image, class: "product-card__image" %>
+      <% else %>
+        <div class="product-card__image product-card__image--placeholder"></div>
+      <% end %>
+    <% end %>
+    <%= render "favorites/favorite_button", product: product, favorited: favorited %>
+    <%= render "products/compare_toggle", product: product %>
+  </div>
+  <p class="product-card__brand"><%= product.brand %><%= " #{product.model}" if product.model.present? %></p>
+  <h3><%= link_to product.name, product_path(product) %></h3>
+  <p class="product-card__price">
+    ₴<%= number_with_precision(product.price_cents / 100.0, precision: 2) %>
+    <% if product.discounted? %>
+      <span class="product-card__previous-price">₴<%= number_with_precision(product.previous_price_cents / 100.0, precision: 2) %></span>
+    <% end %>
+  </p>
+  <% if product.out_of_stock? %>
+    <p class="product-card__out-of-stock">Out of stock</p>
+  <% else %>
+    <% if product.low_stock? %>
+      <p class="product-card__low-stock">Only <%= product.stock_quantity %> left</p>
+    <% end %>
+    <% if user_signed_in? %>
+      <%= button_to "Add to Cart", cart_items_path(product_id: product.id), class: "btn btn--accent" %>
+    <% end %>
+  <% end %>
+</article>

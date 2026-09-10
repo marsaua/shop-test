@@ -18,12 +18,48 @@
     <%= f.text_area :description %>
   </div>
   <div class="field">
+    <%= f.label :sku, "SKU" %>
+    <%= f.text_field :sku %>
+  </div>
+  <div class="field">
+    <%= f.label :brand %>
+    <%= f.text_field :brand %>
+  </div>
+  <div class="field">
+    <%= f.label :model %>
+    <%= f.text_field :model %>
+  </div>
+  <div class="field">
+    <%= f.label :category %>
+    <%= f.select :category, Product::CATEGORY_LABELS.map { |value, label| [ label, value ] }, include_blank: true %>
+  </div>
+  <div class="field">
     <%= f.label :price_cents, "Price (cents)" %>
     <%= f.number_field :price_cents, min: 1, step: 1 %>
   </div>
   <div class="field">
+    <%= f.label :previous_price_cents, "Previous price (cents, optional)" %>
+    <%= f.number_field :previous_price_cents, min: 1, step: 1 %>
+  </div>
+  <div class="field">
     <%= f.label :stock_quantity %>
     <%= f.number_field :stock_quantity, min: 0, step: 1 %>
+  </div>
+  <div class="field">
+    <%= f.label :color %>
+    <%= f.text_field :color %>
+  </div>
+  <div class="field">
+    <%= f.label :weight_grams %>
+    <%= f.number_field :weight_grams, min: 1, step: 1 %>
+  </div>
+  <div class="field">
+    <%= f.label :warranty_months %>
+    <%= f.number_field :warranty_months, min: 0, step: 1 %>
+  </div>
+  <div class="field">
+    <%= f.label :specifications, "Specifications (JSON)" %>
+    <%= f.text_area :specifications, value: product.specifications.to_json, class: "product-form__specifications" %>
   </div>
   <div class="field">
     <%= f.label :image %>

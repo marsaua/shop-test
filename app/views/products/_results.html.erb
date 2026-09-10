@@ -1,0 +1,25 @@
+<% query = local_assigns.fetch(:query, "") %>
+
+<% if query.present? %>
+  <p class="search-summary">
+    <%= pluralize(products.total_count, "result") %> for &ldquo;<%= query %>&rdquo;
+  </p>
+<% end %>
+
+<% if products.empty? %>
+  <p class="search-empty">
+    <% if query.present? %>
+      No products match &ldquo;<%= query %>&rdquo;. Try a different search or clear it to browse the full catalog.
+    <% else %>
+      No products match the selected filters.
+    <% end %>
+  </p>
+<% else %>
+  <div class="product-grid">
+    <% products.each do |product| %>
+      <%= render "products/product_card", product: product, favorited: favorited_product_ids.include?(product.id) %>
+    <% end %>
+  </div>
+
+  <%= paginate products %>
+<% end %>

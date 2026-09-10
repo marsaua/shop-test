@@ -18,12 +18,12 @@
     <% @order.order_items.each do |item| %>
       <tr>
         <td><%= item.product_name %></td>
-        <td>$<%= "%.2f" % (item.unit_price_cents / 100.0) %></td>
+        <td>₴<%= "%.2f" % (item.unit_price_cents / 100.0) %></td>
         <td><%= item.quantity %></td>
-        <td>$<%= "%.2f" % (item.unit_price_cents * item.quantity / 100.0) %></td>
+        <td>₴<%= "%.2f" % (item.unit_price_cents * item.quantity / 100.0) %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
-<p class="cart-total">Total: $<%= "%.2f" % (@order.total_cents / 100.0) %></p>
+<p class="cart-total">Total: ₴<%= "%.2f" % (@order.total_cents / 100.0) %></p>

@@ -13,7 +13,21 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-current-user-id="<%= current_user&.id %>" data-category-labels="<%= Product::CATEGORY_LABELS.to_json %>">
+    <% if user_signed_in? %>
+      <div data-controller="favorites-merge" data-favorites-merge-url-value="<%= merge_favorites_path %>">
+        <p class="favorites-sync-status" data-favorites-merge-target="status" role="status" hidden>
+          Syncing your saved favorites&hellip;
+        </p>
+      </div>
+    <% end %>
+    <div id="favorites-error" class="flash flash--alert" role="alert" hidden></div>
+    <div id="comparison-notice" class="flash flash--alert comparison-notice" role="alert" hidden data-controller="comparison-notice">
+      <span data-comparison-notice-target="message"></span>
+      <button type="button" class="btn btn--secondary comparison-notice__action" data-comparison-notice-target="action"
+              data-action="click->comparison-notice#clearAndAdd" hidden></button>
+      <button type="button" class="comparison-notice__dismiss" data-action="click->comparison-notice#dismiss" aria-label="Dismiss">&times;</button>
+    </div>
     <%= render "shared/header" %>
     <main class="page">
       <%= render "shared/flash" %>

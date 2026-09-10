@@ -1,0 +1,14 @@
+<% favorited = local_assigns.fetch(:favorited, false) %>
+<button type="button"
+        class="favorite-toggle<%= " is-favorited" if favorited %>"
+        data-controller="favorite-button"
+        data-favorite-button-product-id-value="<%= product.id %>"
+        data-favorite-button-favorited-value="<%= favorited %>"
+        data-favorite-button-signed-in-value="<%= user_signed_in? %>"
+        data-favorite-button-url-value="<%= product_favorite_path(product) %>"
+        data-favorite-button-product-name="<%= product.name %>"
+        data-action="click->favorite-button#toggle"
+        aria-pressed="<%= favorited %>"
+        aria-label="<%= favorited ? "Remove #{product.name} from favorites" : "Add #{product.name} to favorites" %>">
+  <span class="favorite-toggle__icon" aria-hidden="true">&#9829;</span>
+</button>

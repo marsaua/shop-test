@@ -4,10 +4,59 @@
   <% end %>
 
   <div class="product-detail__info">
-    <h1><%= @product.name %></h1>
-    <p class="product-detail__price">$<%= "%.2f" % (@product.price_cents / 100.0) %></p>
+    <div class="product-detail__heading">
+      <h1><%= @product.name %></h1>
+      <div class="product-detail__toggles">
+        <%= render "favorites/favorite_button", product: @product, favorited: @favorited_product_ids.include?(@product.id) %>
+        <%= render "products/compare_toggle", product: @product %>
+      </div>
+    </div>
+    <p class="product-detail__meta">
+      <%= @product.brand %><%= " #{@product.model}" if @product.model.present? %>
+      &middot; <%= @product.category_label %>
+      &middot; SKU <%= @product.sku %>
+    </p>
+
+    <p class="product-detail__price">
+      ₴<%= number_with_precision(@product.price_cents / 100.0, precision: 2) %>
+      <% if @product.discounted? %>
+        <span class="product-detail__previous-price">₴<%= number_with_precision(@product.previous_price_cents / 100.0, precision: 2) %></span>
+      <% end %>
+    </p>
     <p><%= @product.description %></p>
-    <p><%= @product.stock_quantity > 0 ? "#{@product.stock_quantity} in stock" : "Out of stock" %></p>
+    <p class="product-detail__availability">
+      <% if @product.out_of_stock? %>
+        Out of stock
+      <% elsif @product.low_stock? %>
+        Only <%= @product.stock_quantity %> left in stock
+      <% else %>
+        <%= @product.stock_quantity %> in stock
+      <% end %>
+    </p>
+
+    <ul class="product-detail__facts">
+      <% if @product.color.present? %>
+        <li><strong>Color:</strong> <%= @product.color %></li>
+      <% end %>
+      <% if @product.weight_grams.present? %>
+        <li><strong>Weight:</strong> <%= @product.weight_grams %> g</li>
+      <% end %>
+      <% if @product.warranty_months.present? %>
+        <li><strong>Warranty:</strong> <%= pluralize(@product.warranty_months, "month") %></li>
+      <% end %>
+    </ul>
+
+    <% if @product.specifications.present? %>
+      <div class="product-detail__specifications">
+        <h2>Specifications</h2>
+        <dl>
+          <% @product.specifications.each do |key, value| %>
+            <dt><%= @product.specification_label(key.to_s) %></dt>
+            <dd><%= value.is_a?(Array) ? value.join(", ") : value %></dd>
+          <% end %>
+        </dl>
+      </div>
+    <% end %>
 
     <% if user_signed_in? %>
       <%= form_with url: cart_items_path, method: :post, class: "add-to-cart-form" do %>

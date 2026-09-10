@@ -1,0 +1,50 @@
+<h1>Favorites</h1>
+
+<% if user_signed_in? %>
+  <div data-controller="favorites-list">
+    <div class="product-grid" data-favorites-list-target="grid" <%= "hidden" if @favorites.empty? %>>
+      <% @favorites.each do |favorite| %>
+        <%= render "products/product_card", product: favorite.product, favorited: true %>
+      <% end %>
+    </div>
+    <div class="favorites-empty" data-favorites-list-target="empty" <%= "hidden" unless @favorites.empty? %>>
+      <p>You haven't saved any favorites yet.</p>
+      <%= link_to "Browse the catalog", products_path, class: "btn btn--primary" %>
+    </div>
+  </div>
+<% else %>
+  <div data-controller="favorites-list guest-favorites-list"
+       data-guest-favorites-list-by-ids-url-value="<%= by_ids_products_path %>">
+    <p class="flash flash--alert" data-guest-favorites-list-target="error" role="alert" hidden>
+      Couldn't load your favorites right now. Please try again later.
+    </p>
+    <div class="product-grid" data-favorites-list-target="grid" data-guest-favorites-list-target="grid" hidden></div>
+    <div class="favorites-empty" data-favorites-list-target="empty" data-guest-favorites-list-target="empty" hidden>
+      <p>You haven't saved any favorites yet.</p>
+      <%= link_to "Browse the catalog", products_path, class: "btn btn--primary" %>
+    </div>
+
+    <template data-guest-favorites-list-target="cardTemplate">
+      <article class="product-card" data-product-id="">
+        <div class="product-card__media">
+          <a data-role="product-link">
+            <img class="product-card__image" data-role="image" hidden>
+            <div class="product-card__image product-card__image--placeholder" data-role="placeholder"></div>
+          </a>
+          <button type="button"
+                  class="favorite-toggle is-favorited"
+                  data-controller="favorite-button"
+                  data-favorite-button-favorited-value="true"
+                  data-favorite-button-signed-in-value="false"
+                  data-action="click->favorite-button#toggle"
+                  aria-pressed="true">
+            <span class="favorite-toggle__icon" aria-hidden="true">&#9829;</span>
+          </button>
+        </div>
+        <h3><a data-role="product-link"><span data-role="name"></span></a></h3>
+        <p class="product-card__price" data-role="price"></p>
+        <p class="product-card__out-of-stock" data-role="out-of-stock" hidden>Out of stock</p>
+      </article>
+    </template>
+  </div>
+<% end %>
