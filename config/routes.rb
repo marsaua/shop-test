@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   resources :products do
     resource :favorite, only: [ :create, :destroy ]
+    resource :product_view, only: [ :create ]
 
     collection do
       get :by_ids
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
   resources :favorites, only: [ :index ] do
     post :merge, on: :collection
   end
+  resources :product_views, only: [ :index ]
   resource :comparison, only: [ :show ], controller: "comparison"
 
   get "up" => "rails/health#show", as: :rails_health_check

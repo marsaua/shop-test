@@ -11,6 +11,7 @@
 
     <%= stylesheet_link_tag "application", "layout", "forms", "products", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= yield :head %>
   </head>
 
   <body data-current-user-id="<%= current_user&.id %>" data-category-labels="<%= Product::CATEGORY_LABELS.to_json %>">

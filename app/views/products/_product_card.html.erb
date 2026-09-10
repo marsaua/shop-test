@@ -1,4 +1,5 @@
 <% favorited = local_assigns.fetch(:favorited, false) %>
+<% viewed_at = local_assigns[:viewed_at] %>
 <article class="product-card" data-product-id="<%= product.id %>">
   <div class="product-card__media">
     <%= link_to product_path(product) do %>
@@ -19,6 +20,14 @@
       <span class="product-card__previous-price">₴<%= number_with_precision(product.previous_price_cents / 100.0, precision: 2) %></span>
     <% end %>
   </p>
+  <% if viewed_at %>
+    <p class="product-card__viewed-at"
+       data-controller="local-time"
+       data-local-time-datetime-value="<%= viewed_at.utc.iso8601 %>"
+       data-local-time-prefix-value="Viewed">
+      Viewed <%= viewed_at.strftime("%b %-d, %Y") %>
+    </p>
+  <% end %>
   <% if product.out_of_stock? %>
     <p class="product-card__out-of-stock">Out of stock</p>
   <% else %>

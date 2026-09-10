@@ -1,3 +1,9 @@
+<% if user_signed_in? %>
+  <div data-controller="product-view-tracker"
+       data-product-view-tracker-url-value="<%= product_product_view_path(@product) %>"
+       hidden></div>
+<% end %>
+
 <div class="product-detail">
   <% if @product.image.attached? %>
     <%= image_tag @product.image, class: "product-detail__image" %>

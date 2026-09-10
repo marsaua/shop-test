@@ -31,6 +31,7 @@
       <% if user_signed_in? %>
         <%= link_to "Cart (#{current_user.cart.cart_items.sum(:quantity)})", cart_path, class: "cart-link" %>
         <%= link_to "My Orders", orders_path %>
+        <%= link_to "Recently Viewed", product_views_path %>
       <% end %>
     </div>
   </div>

@@ -1,0 +1,31 @@
+<% content_for :head do %>
+  <%# Never show a cached snapshot of someone else's history after logout
+      or an account switch, or a stale list right after a new view lands. %>
+  <meta name="turbo-cache-control" content="no-cache">
+<% end %>
+
+<h1>Recently Viewed</h1>
+<p class="page-intro">Products you've viewed in the last 7 days.</p>
+
+<% if @load_error %>
+  <div class="flash flash--alert" role="alert">
+    <p>Couldn't load your recently viewed products right now.</p>
+    <%= link_to "Retry", product_views_path, class: "btn btn--secondary" %>
+  </div>
+<% elsif @product_views.empty? %>
+  <div class="recently-viewed-empty">
+    <p>You haven't viewed any products in the last 7 days.</p>
+    <%= link_to "Browse the catalog", products_path, class: "btn btn--primary" %>
+  </div>
+<% else %>
+  <div class="product-grid">
+    <% @product_views.each do |product_view| %>
+      <%= render "products/product_card",
+            product: product_view.product,
+            favorited: @favorited_product_ids.include?(product_view.product_id),
+            viewed_at: product_view.last_viewed_at %>
+    <% end %>
+  </div>
+
+  <%= paginate @product_views %>
+<% end %>

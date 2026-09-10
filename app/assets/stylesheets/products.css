@@ -43,6 +43,7 @@
 
 .search-summary { color: var(--color-text-muted); margin: 0 0 1rem; }
 .search-empty { color: var(--color-text-muted); }
+.page-intro { color: var(--color-text-muted); margin: 0 0 1rem; }
 
 .search-error {
   background: #fdecea;
@@ -75,6 +76,7 @@ turbo-frame#products-results[busy] { opacity: 0.6; }
 .product-card__previous-price { color: var(--color-text-muted); font-weight: 400; text-decoration: line-through; margin-left: 0.4rem; }
 .product-card__out-of-stock { color: var(--color-text-muted); font-style: italic; }
 .product-card__low-stock { color: var(--color-coral); font-size: 0.85rem; }
+.product-card__viewed-at { color: var(--color-text-muted); font-size: 0.85rem; margin: 0.25rem 0 0; }
 
 .product-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
 .product-detail__image { width: 100%; border-radius: 8px; }
@@ -117,6 +119,9 @@ turbo-frame#products-results[busy] { opacity: 0.6; }
 
 .favorites-empty { text-align: center; padding: 3rem 1rem; }
 .favorites-empty p { color: var(--color-text-muted); margin-bottom: 1rem; }
+
+.recently-viewed-empty { text-align: center; padding: 3rem 1rem; }
+.recently-viewed-empty p { color: var(--color-text-muted); margin-bottom: 1rem; }
 
 .compare-toggle {
   background: white;

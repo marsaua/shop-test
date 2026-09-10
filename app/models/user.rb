@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :orders, dependent: :destroy
   has_many :favorites, dependent: :destroy
   has_many :favorite_products, through: :favorites, source: :product
+  has_many :product_views, dependent: :destroy
 
   after_create :create_default_cart
 
