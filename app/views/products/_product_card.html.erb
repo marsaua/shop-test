@@ -2,7 +2,7 @@
 <% viewed_at = local_assigns[:viewed_at] %>
 <article class="product-card" data-product-id="<%= product.id %>">
   <div class="product-card__media">
-    <%= link_to product_path(product) do %>
+    <%= link_to product_path(product), data: { turbo_frame: "_top" } do %>
       <% if product.image.attached? %>
         <%= image_tag product.image, class: "product-card__image" %>
       <% else %>
@@ -13,7 +13,7 @@
     <%= render "products/compare_toggle", product: product %>
   </div>
   <p class="product-card__brand"><%= product.brand %><%= " #{product.model}" if product.model.present? %></p>
-  <h3><%= link_to product.name, product_path(product) %></h3>
+  <h3><%= link_to product.name, product_path(product), data: { turbo_frame: "_top" } %></h3>
   <p class="product-card__price">
     ₴<%= number_with_precision(product.price_cents / 100.0, precision: 2) %>
     <% if product.discounted? %>

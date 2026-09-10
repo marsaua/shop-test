@@ -8,6 +8,15 @@ RSpec.describe "Products", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it "makes each product card's links break out of the products-results turbo frame" do
+      product = create(:product, name: "Frame Breakout Widget")
+
+      get products_path
+
+      card = response.body[/<article class="product-card" data-product-id="#{product.id}">.*?<\/article>/m]
+      expect(card).to include(%(data-turbo-frame="_top" href="#{product_path(product)}"))
+    end
+
     it "filters to in-stock products only when requested" do
       in_stock = create(:product, name: "In Stock Book", stock_quantity: 3)
       out_of_stock = create(:product, name: "Out Of Stock Book", stock_quantity: 0)
