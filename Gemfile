@@ -7,7 +7,7 @@ gem "json", "~> 2.7"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use PostgreSQL as the database for Active Record
-gem "pg", "~> 1.5"
+gem "pg", "~> 1.7"
 gem "devise"
 gem "pundit"
 gem "kaminari"
